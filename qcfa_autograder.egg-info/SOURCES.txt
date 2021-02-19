@@ -1,0 +1,10 @@
+setup.py
+qcfa_autograder/answers.py
+qcfa_autograder/grade.py
+qcfa_autograder/qcfa_autograder.py
+qcfa_autograder/qcfa_jailed_autograder.py
+qcfa_autograder/utils.py
+qcfa_autograder.egg-info/PKG-INFO
+qcfa_autograder.egg-info/SOURCES.txt
+qcfa_autograder.egg-info/dependency_links.txt
+qcfa_autograder.egg-info/top_level.txt

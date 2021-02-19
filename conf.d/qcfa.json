@@ -1,0 +1,20 @@
+{
+    "UChicagoX-Quan12000_1T2021": {
+        "SERVER": "https://xqueue.edx.org",
+        "CONNECTIONS": 1,
+        "AUTH": ["UChicagoX-Quan12000_1T2021", "amLt2dKFRUWdVD2wsT"],
+        "HANDLERS": [
+            {
+                "HANDLER": "qcfa_autograder.qcfa_autograder.QCFAGrader",
+                "KWARGS": {
+                  "grader_root": "/home/litteken/qcfa-autograder/qcfa_autograder"
+                }
+            }
+        ],
+        "CODEJAIL": {
+            "name": "python",
+            "python": "/home/litteken/qcfa-grader-sandbox/bin/python",
+            "user": "sandbox"
+        }
+    }
+}
