@@ -577,9 +577,9 @@ def hw3_4_answer(response_function):
       print("error: function output was not a qiskit.QuantumCircuit", file=sys.stderr)
       exit(3)
 
-    if len(response.qubits) != n:
-      print("error: function output did not have n qubits", file=sys.stderr)
-      exit(3)
+    #if len(response.qubits) != n:
+    #  print("error: function output did not have n qubits", file=sys.stderr)
+    #  exit(3)
    
     correct = False
     for expected in expected_possibilities: 
