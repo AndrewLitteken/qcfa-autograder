@@ -10,9 +10,14 @@ def compare_circuits(c1, c2):
   op1 = qiskit.quantum_info.Operator(c1)
   op2 = qiskit.quantum_info.Operator(c2)
 
-  return op1 == op2  
+  return op1 == op2
 
 def compare_circuits_ins_outs(expected, test, num_bits, tests_to_use=None):
+  if len(expected.qubits) != len(test.qubits):
+    q = len(expected.qubits)
+    print(f"error: function output did not have {q} qubits", file=sys.stderr)
+    exit(3)
+
   op1 = qiskit.quantum_info.Operator(expected).data
   op2 = qiskit.quantum_info.Operator(test).data
 
@@ -36,9 +41,8 @@ def compare_circuits_ins_outs(expected, test, num_bits, tests_to_use=None):
     test_cases = tests_to_use
 
   for test_pair in test_cases:
-    correct = np.dot(test_pair[1], op1)
-    test_res = np.dot(test_pair[1], op2)
-    #print(correct, test_res)
+    correct = np.dot(op1, test_pair[1])
+    test_res = np.dot(op2, test_pair[1])
     #points[test_pair[0]] = 1 if np.allclose(correct, test_res) or np.allclose(correct, -test_res) else 0
     points[test_pair[0]] = 1 if np.allclose(correct, test_res) else 0
     point_count += points[test_pair[0]] 

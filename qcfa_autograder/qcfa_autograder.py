@@ -132,6 +132,7 @@ class QCFAGrader(Grader):
           score_split = score.split("/")
           recieved = int(score_split[0])
           possible = int(score_split[1])
+          assert recieved <= possible, "Score given is greater than possible score."
           results["correct"] = recieved == possible
           results["score"] = recieved / possible
           continue

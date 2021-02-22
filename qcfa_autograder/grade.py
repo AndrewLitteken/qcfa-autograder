@@ -12,7 +12,7 @@ submission_module = utils.load_module_from_path(submission_path)
 unitary_comparison_exercises = {
   "hw1-1", "hw1-2", "hw1-3", "hw1-4",
   "hw2-1", "hw2-2", "hw2-3", "hw2-4",
-  "hw3-1"}
+  "hw3-1a"}
 
 size_comparisons = {
   "hw2-1", "hw2-2", "hw2-3", "hw2-4"
@@ -21,7 +21,7 @@ base_function_name = exercise.replace("-", "_") + "_answer"
 response_function_name = exercise.replace("-", "_") + "_response"
 
 args = []
-if exercise == "hw3-1":
+if exercise == "hw3-1a":
   qr = qiskit.QuantumRegister(2)
   qc = qiskit.QuantumCircuit(qr)
   args += [qc, qr[0], qr[1]]
@@ -66,7 +66,7 @@ if exercise in unitary_comparison_exercises:
   points = utils.test_results(expected_possibilities, response, correct, tests_to_use)
   if exercise.startswith("hw2"):
     points["total"] += 1
-    if len(expected_possibilities[0]) > len(response) and points["all"] > points["returns circuit"]:
+    if len(expected_possibilities[0]) > len(response) and points["all"] > points["returns circuit"] and len(response) != 0:
       points["all"] += 1
       points["is smaller"] = 1
     else:
@@ -74,6 +74,8 @@ if exercise in unitary_comparison_exercises:
       points["is smaller"] = 0
   utils.output_test_results(points)
 else:
-  print(base_function_name)
-  points = base_function(response_function)
+  if exercise == "hw3-3":
+    points = base_function(response_function, submission_module)
+  else:
+    points = base_function(response_function)
   utils.output_test_results(points)
