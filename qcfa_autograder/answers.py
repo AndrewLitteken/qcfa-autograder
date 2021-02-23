@@ -98,8 +98,8 @@ def hw1_4_answer():
   return qc4
 
 def hw1_4_tests():
-  return [("11", [0.75, 0, 0, 0]),
-          ("00", [0, 0, 0, 0.75]),
+  return [("00", [0.75, 0, 0, 0]),
+          ("11", [0, 0, 0, 0.75]),
           ("01", [0, 0, 0.75, 0]),
           ("10", [0, 0.75, 0, 0])]
 
@@ -591,7 +591,7 @@ def hw3_4_answer(response_function):
     for i in [1/4, 1/2, 3/4]:
       v = int(2**n * i)
       t = [0] * (2**n)
-      t[v] = 0.75
+      t[-v] = 0.75
       tests_to_use.append(("{0:b}".format(v), t))
     # tests_to_use = []
     # for i in range(2**n):

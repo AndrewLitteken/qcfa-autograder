@@ -43,6 +43,7 @@ def compare_circuits_ins_outs(expected, test, num_bits, tests_to_use=None):
     if right_size:
       correct = np.dot(op1, test_pair[1])
       test_res = np.dot(op2, test_pair[1])
+      print(correct, test_res)
       #points[test_pair[0]] = 1 if np.allclose(correct, test_res) or np.allclose(correct, -test_res) else 0
       points[test_pair[0]] = 1 if np.allclose(correct, test_res) else 0
       point_count += points[test_pair[0]]
