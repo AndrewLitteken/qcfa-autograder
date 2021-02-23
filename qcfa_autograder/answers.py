@@ -63,6 +63,7 @@ def hw1_2_answer():
   qc2.h(qr2[0])
   qc2.z(qr2[0])
   qc2.x(qr2[1])
+  qc2.z(qr2[1])
 
   return qc2
 
