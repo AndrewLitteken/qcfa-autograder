@@ -7,12 +7,28 @@ import traceback
 from itertools import product
 
 def compare_circuits(c1, c2):
+  for i in c2:
+    if i[0].name == "measure":
+      print("error: circuit included a measurement, which cannot happen for this question.", file=sys.stderr)
+      exit(3)
+  for i in c1:
+    if i[0].name == "measure":
+      print("error: circuit included a measurement, which cannot happen for this question.", file=sys.stderr)
+      exit(3)
   op1 = qiskit.quantum_info.Operator(c1)
   op2 = qiskit.quantum_info.Operator(c2)
 
   return op1 == op2
 
 def compare_circuits_ins_outs(expected, test, num_bits, tests_to_use=None):
+  for i in expected:
+    if i[0].name == "measure":
+      print("error: circuit included a measurement, which cannot happen for this question.", file=sys.stderr)
+      exit(3)
+  for i in test:
+    if i[0].name == "measure":
+      print("error: circuit included a measurement, which cannot happen for this question.", file=sys.stderr)
+      exit(3)
   right_size = True
   if len(expected.qubits) != len(test.qubits):
     right_size = False

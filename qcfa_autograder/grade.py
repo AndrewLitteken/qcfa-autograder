@@ -79,3 +79,4 @@ else:
   else:
     points = base_function(response_function)
   utils.output_test_results(points)
+exit(0)

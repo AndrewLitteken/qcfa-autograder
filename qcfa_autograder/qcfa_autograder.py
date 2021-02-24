@@ -137,6 +137,8 @@ class QCFAGrader(Grader):
           results["score"] = recieved / possible
           continue
         results["tests"].append((test, score))
+    if proc.returncode != 0 and len(results["errors"]) == 0:
+      raise Exception("Error in grade.py")
     return results
 
   def grade(self, grader_path, grader_config, student_response):
@@ -166,7 +168,7 @@ class QCFAGrader(Grader):
     else:
       errors = format_errors(["There were no errors running the code."])
 
-    status = 'Ran Correctly'
+    status = 'Ran without errors'
     if len(results['errors']) > 0:
         status = 'ERROR running submitted code'
 

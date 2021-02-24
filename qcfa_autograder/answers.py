@@ -26,6 +26,9 @@ def hw1_0_answer(response_function):
   too_many_opts = False
   too_few_opts = False
   for i in c:
+    if i[0].name == "measure":
+      print("error: circuit included a measurement, which cannot happen for this question.", file=sys.stderr)
+      exit(3)
     t = (i[0].name, tuple([q.index for q in i[1]])) 
     if t in operations:
       operations.remove(t)
@@ -42,7 +45,7 @@ def hw1_0_answer(response_function):
   same = utils.compare_circuits(qcpre, c)
   if same:
     points["all"] += 1
-    points["corect_order"] = 1
+    points["correct_order"] = 1
   return points
 
 def hw1_1_answer():
