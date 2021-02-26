@@ -74,7 +74,7 @@ if exercise in unitary_comparison_exercises:
       points["is smaller"] = 0
   utils.output_test_results(points)
 else:
-  if exercise == "hw3-3":
+  if exercise == "hw3-3" or exercise == "hw4-4":
     points = base_function(response_function, submission_module)
   else:
     points = base_function(response_function)
