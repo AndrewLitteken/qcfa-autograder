@@ -230,6 +230,11 @@ def hw3_1b_answer(response_function):
       points["returns result"] = 1
       points["all"] += 1
 
+    for key in r:
+      if not isinstance(r[key], int):
+        print("error: dictionary values are not integers as expected", file=sys.stderr)
+        exit(3)
+
     qubits = set(c.qubits)
     for i in c:
       if isinstance(i[0], qiskit.circuit.measure.Measure):
@@ -290,6 +295,11 @@ def hw3_1c_answer(response_function):
     elif points["returns result"] is None:
       points["returns result"] = 1
       points["all"] += 1
+
+    for key in r:
+      if not isinstance(r[key], int):
+        print("error: dictionary values are not integers as expected", file=sys.stderr)
+        exit(3)
 
     qubits = set(c.qubits)
     for i in c:
