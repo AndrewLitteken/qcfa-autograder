@@ -528,9 +528,9 @@ def hw3_3_answer(response_function, module):
       prime_circuit_function(student_circuit, q, bitstring)
       prime_circuit(actual_circuit, q, bitstring)
       worked = worked and utils.compare_circuits(student_circuit, actual_circuit)
-  points["all"] += 2
   points["total"] += 2
   points["prime circuit"] += 2 if worked else 0
+  points["all"] += 2 if worked else 0
 
   for s in product("10", repeat=2):
     p = "".join(s) + "0000"
