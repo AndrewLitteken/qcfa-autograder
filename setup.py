@@ -7,5 +7,9 @@ setup(
     packages=[
         'qcfa_autograder',
     ],
-    #install_requires=open('requirements/reqs.txt', 'rb').readlines()
+    install_requires = [
+        'qiskit==0.28',
+        'numpy',
+        'networkx',
+    ]
 )

@@ -76,6 +76,9 @@ class QCFAGrader(Grader):
   def _grade(self, grader_path, grader_config, student_response):
     grader_file = Path(grader_path).dirname() / "grade.py"
     problem = grader_config['grader']
+    python_sandbox = grader_config['python_sandbox']
+    log_file = grader_config['log_file']
+    grader_user = grader_config['sub_user_id']
     current_file = "/tmp/" + str(int(time.time())) + ".py"
     index = 0
     while os.path.exists(current_file):
@@ -93,7 +96,7 @@ class QCFAGrader(Grader):
     file_obj = open(current_file, "w+")
     file_obj.write(student_response)
     file_obj.close()
-    exec_args = ["/home/litteken/qcfa-grader/bin/python", str(grader_file), problem, current_file]
+    exec_args = [python_sandbox + "/qcfa-grader/bin/python", str(grader_file), problem, current_file]
     # 1001 is the groupid and userid for the sandbox account
     proc = subprocess.Popen(exec_args, preexec_fn=demote(1001, 1001), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     try:
@@ -130,8 +133,8 @@ class QCFAGrader(Grader):
         score = line_split[1]
         if test == "all":
           score_split = score.split("/")
-          recieved = int(score_split[0])
-          possible = int(score_split[1])
+          recieved = float(score_split[0])
+          possible = float(score_split[1])
           assert recieved <= possible, "Score given is greater than possible score."
           results["correct"] = recieved == possible
           results["score"] = recieved / possible
@@ -145,7 +148,7 @@ class QCFAGrader(Grader):
     try:
       return self._grade(grader_path, grader_config, student_response)
     except Exception as e:
-      with open('/home/litteken/grader-log.txt', 'a') as f:
+      with open(self.log_file, 'a') as f:
         f.write(">>>>> Error Begin\n")
         f.write("Time: {}\n".format(time.ctime()))
         f.write("----Traceback----\n")
@@ -158,7 +161,7 @@ class QCFAGrader(Grader):
         f.write(">>>>> Error End\n")
       return {"correct": False,
               "score": 0,
-              "tests": [("Blank Space", "1")],
+              "tests": [()],
               "errors": ["Please contact the course administrators to fix the problem, along with the time of this error: " + time.ctime()]}
 
 

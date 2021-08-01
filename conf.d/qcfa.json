@@ -7,14 +7,12 @@
             {
                 "HANDLER": "qcfa_autograder.qcfa_autograder.QCFAGrader",
                 "KWARGS": {
-                  "grader_root": "/home/litteken/qcfa-autograder/qcfa_autograder"
+                  "grader_root": "../qcfa-autograder/qcfa_autograder",
+                  "python_sandbox": "../../qcfa_sandbox",
+                  "log_file": "../grader-log.txt",
+                  "sub_user_id": "1001"
                 }
             }
-        ],
-        "CODEJAIL": {
-            "name": "python",
-            "python": "/home/litteken/qcfa-grader-sandbox/bin/python",
-            "user": "sandbox"
-        }
+        ]
     }
 }
