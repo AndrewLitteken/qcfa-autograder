@@ -73,12 +73,29 @@ class QCFAGrader(Grader):
   </section>
 </div>"""
 
+  error_template_scratch = """<div><p>{error}</p></div>"""
+  results_template_scratch = """<div>{report_contents}</div>"""
+  
+  grader_config = {}
+
+  def __init__(self, python_sandbox="", log_file="log.txt", sub_user_id=0, grader_root='/tmp/', fork_per_item=True, logger_name=__name__):
+        """
+        grader_root = root path to graders
+        fork_per_item = fork a process for every request
+        logger_name = name of logger
+        """
+        self.grader_config["python_sandbox"] = python_sandbox
+        self.grader_config["log_file"] = log_file
+        self.grader_config["sub_user_id"] = sub_user_id
+
+        super(QCFAGrader, self).__init__(grader_root, fork_per_item, logger_name)
+
   def _grade(self, grader_path, grader_config, student_response):
     grader_file = Path(grader_path).dirname() / "grade.py"
     problem = grader_config['grader']
-    python_sandbox = grader_config['python_sandbox']
-    log_file = grader_config['log_file']
-    grader_user = grader_config['sub_user_id']
+    python_sandbox = self.grader_config['python_sandbox']
+    log_file = self.grader_config['log_file']
+    grader_user = self.grader_config['sub_user_id']
     current_file = "/tmp/" + str(int(time.time())) + ".py"
     index = 0
     while os.path.exists(current_file):
@@ -96,13 +113,27 @@ class QCFAGrader(Grader):
     file_obj = open(current_file, "w+")
     file_obj.write(student_response)
     file_obj.close()
-    exec_args = [python_sandbox + "/qcfa-grader/bin/python", str(grader_file), problem, current_file]
+    #exec_args = ["sudo", "-u", "__litteken", python_sandbox + "/bin/python", str(grader_file), problem, current_file]
+    exec_args = [python_sandbox + "/bin/python", str(grader_file), problem, current_file]
     # 1001 is the groupid and userid for the sandbox account
-    proc = subprocess.Popen(exec_args, preexec_fn=demote(1001, 1001), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    proc = subprocess.Popen(exec_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
     try:
-      return_code = proc.wait(timeout=10)
+      return_code = proc.wait(timeout=30)
     except subprocess.TimeoutExpired as e:
       results["errors"].append("Unable to complete task in 10 seconds.")
+      with open(self.grader_config["log_file"], 'a') as f:
+        f.write(">>>>> Error Begin\n")
+        f.write("Time: {}\n".format(time.ctime()))
+        f.write("Time Out Error")
+        f.write("----grader_config----\n")
+        f.write(str(grader_config) + "\n")
+        f.write("----student_response----\n")
+        f.write(student_response + "\n")
+        f.write(">>>>> Error End\n")
+      return {"correct": False,
+              "score": 0,
+              "tests": [()],
+              "errors": ["Please contact the course administrators to fix the problem, along with the time of this error: " + time.ctime()]}
       os.remove(current_file)
       return results
     os.remove(current_file)
@@ -146,9 +177,15 @@ class QCFAGrader(Grader):
 
   def grade(self, grader_path, grader_config, student_response):
     try:
-      return self._grade(grader_path, grader_config, student_response)
+      grader_to_use = "qcfa"
+      if "grader_to_use" in grader_config:
+        grader_to_use = grader_config["grader_to_use"]
+      if grader_to_use == "qcfa":
+        return self._grade(grader_path, grader_config, student_response)
+      elif grader_to_use == "scratch":
+        return self.grade_scratch(grader_path, grader_config, student_response)
     except Exception as e:
-      with open(self.log_file, 'a') as f:
+      with open(self.grader_config["log_file"], 'a') as f:
         f.write(">>>>> Error Begin\n")
         f.write("Time: {}\n".format(time.ctime()))
         f.write("----Traceback----\n")
@@ -164,17 +201,91 @@ class QCFAGrader(Grader):
               "tests": [()],
               "errors": ["Please contact the course administrators to fix the problem, along with the time of this error: " + time.ctime()]}
 
+  def grade_scratch(self, grader_path, grader_config, student_response):
+        problem = grader_config['module']
+        stripped_response = student_response.strip(" \t\n\r")
+        split_response = stripped_response.split('/')
+        if "editor" in split_response:
+            split_response.remove("editor")
+        student_id = split_response[-1]
+        if len(student_id) < 2 and len(split_response) > 1:
+            student_id = split_response[-2]
+        print("id", student_id)
+        print("problem", problem)
+        results = {"correct": False,
+                    "score": 0,
+                    "msg": ''}
+        exec_args = ["node", "/home/litteken/automated-assessment/edx/xqueue_grader.js", problem, student_id ]
+        proc = subprocess.Popen(exec_args, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        (output, err) = proc.communicate()
+        print("process error: ", err)
+        visible = "false"
+        error = ""
+        score = 0
+        in_report = False
+        in_grade_script = False
+        report_list = []
+        print("Output: ", output, "\nEnd Output")
+        for line in output.split("\n"):
+            if line == "start_grade_script":
+                in_grade_script = True
+            elif line == "end_grade_script":
+                in_grade_script = False
+            elif in_grade_script:
+                # ignore any line in the grade script
+                continue
+            else:
+                if line.startswith("Error"):
+                    error = line
+                elif line == "report_start":
+                    in_report = True
+                    error = ""
+                elif line == "report_end":
+                    in_report = False
+                    results['correct'] = True
+                elif in_report:
+                    report_list.append(line)
+                elif line.startswith("score:"):
+                    score = float(line.split(':')[1].strip())
+                else:
+                    continue
 
-  def render_results(self, results):
-    if len(results['errors']) > 0:
+        if len(report_list) > 0:
+            report_div = ""
+            for item in report_list:
+                report_div += item
+                report_div += " <br> "
+
+            report_div += " <br>"
+        else:
+            report_div = ""
+
+        results['score'] = score
+        if len(error) > 0:
+            results['msg'] = self.error_template_scratch.format(error=error)
+        else:
+            results['msg'] = self.results_template_scratch.format(report_contents=report_div)
+
+        return results
+
+  def render_results(self, results, config=None):
+    if config is not None and "grader_to_use" in config:
+      if config["grader_to_use"] == "scratch":
+        return self.render_results_scratch(results)
+    if "errors" not in results:
+      error = ""
+    elif len(results['errors']) > 0:
       errors = format_errors(results['errors'])
     else:
       errors = format_errors(["There were no errors running the code."])
 
     status = 'Ran without errors'
-    if len(results['errors']) > 0:
+    if "errors" in results and len(results['errors']) > 0:
         status = 'ERROR running submitted code'
 
     return self.results_template.format(status=status,
                                         errors=errors,
                                         results='')
+  def render_results_scratch(self, results):
+        print("Results",results)
+        return results['msg']
