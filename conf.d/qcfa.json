@@ -1,8 +1,8 @@
-{
-    "UChicagoX-Quan12000_1T2021": {
+
+    "queue_name": {
         "SERVER": "https://xqueue.edx.org",
         "CONNECTIONS": 1,
-        "AUTH": ["UChicagoX-Quan12000_1T2021", "amLt2dKFRUWdVD2wsT"],
+        "AUTH": ["username", "passcode"],
         "HANDLERS": [
             {
                 "HANDLER": "qcfa_autograder.qcfa_autograder.QCFAGrader",
